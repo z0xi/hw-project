@@ -2,6 +2,8 @@
 #include "abycore/sharing/sharing.h"
 #include <ENCRYPTO_utils/cbitvector.h>
 #include <cstring>
+#include <tfhe/tfhe.h>
+#include <tfhe/tfhe_io.h>
 #include "client_circuit.h"
 
 // ClientOnlineProtocol::ClientOnlineProtocol(void){}
@@ -87,7 +89,7 @@ ClientOnlineProtocol::BuildInverseRandomCircuit(share* msg, share* divRand, shar
 
 
 bool 
-ClientOnlineProtocol::runProtocolCircuit(std::vector<uint16_t> msg, uint32_t bufSize, e_role role, const std::string& address, uint16_t port, seclvl seclvl, uint32_t nvals, uint32_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing) {
+ClientOnlineProtocol::runProtocolCircuit(uint32_t bufSize, e_role role, const std::string& address, uint16_t port, seclvl seclvl, uint32_t nvals, uint32_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing) {
 	uint32_t bitlen_8 = 8;
 	uint32_t bitlen_16 = 16;
 	uint64_t msgSize = bufSize;
@@ -98,10 +100,25 @@ ClientOnlineProtocol::runProtocolCircuit(std::vector<uint16_t> msg, uint32_t buf
 	Circuit* temp_circ = sharings[sharing]->GetCircuitBuildRoutine();
 	BooleanCircuit* circ = (BooleanCircuit*) temp_circ;
 
+    FILE* secret_key = fopen("client_folder/secret.key","rb");
+    TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
+	const TFheGateBootstrappingParameterSet* params = key->params;
+    fclose(secret_key);
+	FILE* answer_data = fopen("client_folder/confused_data","rb");
+	LweSample* confused_data = new_gate_bootstrapping_ciphertext_array(16, params);
 	uint16_t msgArray[bufSize];
 	for(int j = 0;j < bufSize;j++){
-       msgArray = msg[j];
+        for (int i=0; i<16; i++) 
+        import_gate_bootstrapping_ciphertext_fromFile(answer_data, &confused_data[i], params);
+        uint16_t answer = 0;
+        for (int i=0; i<16; i++) {
+          int ai = bootsSymDecrypt(&confused_data[i], key)>0;
+          answer |= (ai<<i);
+        }
+		msgArray[j] = answer;
+        printf("%d ",answer);
     }
+	fclose(answer_data);
 
 	// circ->PutSIMDINGate(nvals, msgShare.GetArr(), bitlen_16*bufSize, CLIENT);
 	share *s_div_out, *s_msg, *s_divRand, *s_subRand;

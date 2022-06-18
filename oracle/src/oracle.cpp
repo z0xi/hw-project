@@ -3,21 +3,18 @@
 // Oracle::Oracle(){}
 
 std::vector<int> 
-Oracle::generateRandNumber(int min,int max,int num)
+Oracle::generateRandNumber(int min, int max, std::vector<int> isCipher, int num)
 {
-    std::vector<int> numbers;
     std::vector<int> diff;
-    for(int i = 0;i < max;i++)
-    {
-      numbers.push_back(i);
-    }
-    std::random_shuffle(numbers.begin(),numbers.end());
+
+    std::random_shuffle(isCipher.begin(),isCipher.end());
 
     for(int i = 0 ; i < num ; i++)
     {
-      diff.push_back(numbers[i]);
+      diff.push_back(isCipher[i]);
     }
     sort(diff.begin(), diff.end());
+
     return diff;
 }
 
@@ -343,9 +340,9 @@ Oracle::save_maping_graph(std::vector<int> g_maping_graph, char *path, int lengt
 
 //obfuscate data
 std::vector<LweSample*>
-Oracle::obfuscateData(int fileNUM, int obfuscatedNum, std::vector<LweSample*> cipherArray, TFheGateBootstrappingCloudKeySet* bk)
+Oracle::obfuscateData(int fileNUM, std::vector<int> isCipher, int obfuscatedNum, std::vector<LweSample*> cipherArray, TFheGateBootstrappingCloudKeySet* bk)
 {
-    std::vector<int> ifList = generateRandNumber(0, fileNUM, obfuscatedNum);
+    std::vector<int> ifList = generateRandNumber(0, fileNUM, isCipher, obfuscatedNum);
 
     std::vector<int> randMulList = GenerateMulList(0, 127,fileNUM,ifList);
 
@@ -408,6 +405,7 @@ bool run(CTcpServer TcpServer, int cfd){
         perror("Recv credential fail");
     }
 
+    //按顺序接收属性对应密文
     std::ifstream jsonstream("server_folder/enc_credential.json");//读入json文件
     nlohmann::json credential; //定义json j
     jsonstream >> credential;//将文件中的json数据转入j
@@ -429,13 +427,14 @@ bool run(CTcpServer TcpServer, int cfd){
     }
     std::cout<<"Recv encrypted certificate finish"<< std::endl;
 
-    //reads the cloud key from file
     FILE* cloud_key = fopen("server_folder/cloud.key","rb");
     TFheGateBootstrappingCloudKeySet* bk = new_tfheGateBootstrappingCloudKeySet_fromFile(cloud_key);
     fclose(cloud_key);
 
-    //if necessary, the params are inside the key
+    //把属性名加密并与属性值合并
     std::vector<LweSample*> cipherArray;
+    std::vector<int> isCipher;
+
     int fileNUM = 0;
     const TFheGateBootstrappingParameterSet* params = bk->params;
     for (auto item : information.items()){
@@ -458,14 +457,21 @@ bool run(CTcpServer TcpServer, int cfd){
         for (int j=0; j<8; j++){
           import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ciphertext[j], params);
         }
+        isCipher.push_back(fileNUM - valueLength + i - 1);
         cipherArray.push_back(ciphertext);
       } 
       fclose(cloud_data);
     }
 
     int obfuscatedNum = 10;
-    std::vector<LweSample*> tempAdd = oracle.obfuscateData(fileNUM, obfuscatedNum,cipherArray,bk);
-    //Save obfuscated ciphertext
+    clock_t start, finish;
+    double  duration;
+    start = clock();
+    std::vector<LweSample*> tempAdd = oracle.obfuscateData(fileNUM, isCipher, obfuscatedNum,cipherArray,bk);
+    finish = clock();    
+    duration = (double)(finish - start) / CLOCKS_PER_SEC;    
+    std::cout<<"obfuscation"<< duration<<" seconds"<<std::endl;
+        //Save obfuscated ciphertext
     FILE* confused_data = fopen("server_folder/confused_data","wb");
     for(int i = 0;i < tempAdd.size(); i++){
         for (int j=0; j<16; j++) 
@@ -537,151 +543,3 @@ bool run(CTcpServer TcpServer, int cfd){
     close(sclient);
     return success;  
 }
-
-int hello(){  
-
-    CTcpServer TcpServer;
-    Oracle oracle;
-
-    if (TcpServer.InitServer(5051) == false)
-    {
-        printf("TcpServer.InitServer(5051) failed,exit...\n"); return -1;
-    }
-    if (TcpServer.Accept() == false) { 
-        printf("TcpServer.Accept() failed,exit...\n"); 
-        return -1; 
-    }
-    printf("Client Connected\n"); 
-
-    int recv_data[20];
-    if (TcpServer.RecvFile("server_folder/cloud.key") == false) {
-        perror("Recv key fail");
-    }
-    std::cout<<"Recv public key finish"<< std::endl;
-    if (TcpServer.RecvFile("server_folder/enc_credential.json") == false) {
-        perror("Recv credential fail");
-    }
-
-    std::ifstream jsonstream("server_folder/enc_credential.json");//读入json文件
-    nlohmann::json credential; //定义json j
-    jsonstream >> credential;//将文件中的json数据转入j
-    nlohmann::json information;
-    information = credential["CredentialInformation"];
-    std::string signature_base64 = credential["Signature"];
-    int* cipherLength = new int[information.size()];
-    int index= 0;
-    for (auto item : information.items())
-    {
-        char tmp[30];
-        std::string name = item.key();
-        int value = information.at(item.key());
-        cipherLength[index++] = value;
-        std::sprintf(tmp,"./server_folder/%s", item.key().c_str());
-        if (TcpServer.RecvFile(tmp) == false) {
-            perror("Recv key fail");
-        }
-    }
-    std::cout<<"Recv encrypted certificate finish"<< std::endl;
-
-    //reads the cloud key from file
-    FILE* cloud_key = fopen("server_folder/cloud.key","rb");
-    TFheGateBootstrappingCloudKeySet* bk = new_tfheGateBootstrappingCloudKeySet_fromFile(cloud_key);
-    fclose(cloud_key);
-
-    //if necessary, the params are inside the key
-    std::vector<LweSample*> cipherArray;
-    int fileNUM = 0;
-    const TFheGateBootstrappingParameterSet* params = bk->params;
-    for (auto item : information.items()){
-      int nameLength = item.key().length();
-      int valueLength = information.at(item.key());
-      fileNUM = fileNUM + nameLength + valueLength;
-      for (int i = 0; i < nameLength; i++){ 
-        LweSample* ciphertext = new_gate_bootstrapping_ciphertext_array(8, params);
-        for (int j=0; j<8; j++){
-          // std::cout<<((item.key().c_str()[i]>>j)&1)<<std::endl;
-          bootsCONSTANT(&ciphertext[j], (item.key().c_str()[i]>>j)&1, bk);
-        }
-        cipherArray.push_back(ciphertext);
-      }
-      char tmp[30];
-      std::sprintf(tmp,"./server_folder/%s", item.key().c_str());
-      FILE* cloud_data = fopen(tmp,"rb");
-      for (int i = 0; i < valueLength; i++){
-        LweSample* ciphertext = new_gate_bootstrapping_ciphertext_array(8, params);
-        for (int j=0; j<8; j++){
-          import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ciphertext[j], params);
-        }
-        cipherArray.push_back(ciphertext);
-      } 
-      fclose(cloud_data);
-    }
-
-    int obfuscatedNum = 10;
-    std::vector<LweSample*> tempAdd = oracle.obfuscateData(fileNUM, obfuscatedNum,cipherArray,bk);
-    //Save obfuscated ciphertext
-    FILE* confused_data = fopen("server_folder/confused_data","wb");
-    for(int i = 0;i < tempAdd.size(); i++){
-        for (int j=0; j<16; j++) 
-            export_gate_bootstrapping_ciphertext_toFile(confused_data, &tempAdd[i][j], params);
-    }
-    fclose(confused_data);
-
-    if (TcpServer.SendFile("server_folder/confused_data") == false) {
-        perror("send fail");
-    }
-    //Just For Debug
-    // LweSample* remainder = new_gate_bootstrapping_ciphertext_array(16, params);
-    // // //Just for checking the obfuscated data
-    // FILE* answer_data = fopen("server_folder/confused_data","rb");
-    // for(int j = 0;j < fileNUM;j++){
-    //     for (int i=0; i<16; i++) 
-    //       import_gate_bootstrapping_ciphertext_fromFile(answer_data, &remainder[i], params);
-    //     int answer = 0;
-    //     for (int i=0; i<16; i++) {
-    //       int ai = bootsSymDecrypt(&remainder[i], key)>0;
-    //       answer |= (ai<<i);
-    //     }
-    // }
-    // std::cout<<"size:"<<fileNUM<<std::endl;
-    // fclose(answer_data);
-//         FILE* secret_key = fopen("client_folder/secret.key","rb");
-//     TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
-//     fclose(secret_key);
-//         std::string s_answer="";
-//         std::string ss_answer="";
-//       for(int j = 0;j < fileNUM;j++){
-//         int answer = 0;
-//         int answer1 = 0;
-//         for (int i=0; i<16; i++) {
-//           int ai = bootsSymDecrypt(&tempAdd[j][i], key)>0;
-//           answer |= (ai<<i);
-//         }
-//                 ss_answer+=char(answer1);
-
-//         for (int i=0; i<8; i++) {
-//           int ai = bootsSymDecrypt(&cipherArray[j][i], key)>0;
-//           answer1 |= (ai<<i);
-//         }
-//         s_answer+=char(answer1);
-//         printf("%d %d \n",answer1,answer);
-//     }
-//     std::cout<<s_answer<<std::endl;
-//     std::cout<<ss_answer<<std::endl;
-	  e_role role = SERVER;
-    uint32_t bitlen = 32, nvals = 1, secparam = 128, nthreads = 1;
-    uint16_t port = 7766;
-    std::string address = "127.0.0.1";
-    e_mt_gen_alg mt_alg = MT_OT;
-
-    e_sharing sharing = S_BOOL;
-    seclvl seclvl = get_sec_lvl(secparam);
-    OracleOnlineProtocol run_protocol;
-    bool success = run_protocol.runProtocolCircuit(signature_base64, fileNUM, role, address, port, seclvl, nvals, nthreads, mt_alg, sharing);
-  
-    // delete run_protocol;
-    if(success){
-      printf("Verify success\n");
-    }
-    return 0;  
- }  

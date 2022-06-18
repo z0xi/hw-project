@@ -22,7 +22,7 @@ public:
 	int bufSize;
 	int msgSize;
 	// Oracle();
-    std::vector<int> generateRandNumber(int min,int max,int num);
+    std::vector<int> generateRandNumber(int min,int max, std::vector<int> isCipher, int num);
 	std::vector<int> GenerateMulList(int min,int max, int num, std::vector<int> ifList);
 	std::vector<int> GenerateAddList(int min,int max, int num, std::vector<int> ifList);
 
@@ -37,7 +37,7 @@ public:
 	void threadAdd(std::vector<LweSample*> &product, std::vector<LweSample*> ciphertext, std::vector<int> addList, int threadNum, const TFheGateBootstrappingCloudKeySet* bk);
 	void multiply(LweSample* product, LweSample* a, LweSample* b, const int nb_bits, const TFheGateBootstrappingCloudKeySet* bk);
 	void save_maping_graph(std::vector<int> g_maping_graph, char *path, int length);
-	std::vector<LweSample*> obfuscateData(int fileNUM, int obfuscatedNum,std::vector<LweSample*> cipherArray, TFheGateBootstrappingCloudKeySet* bk);
+	std::vector<LweSample*> obfuscateData(int fileNUM, std::vector<int> isCipher, int obfuscatedNum,std::vector<LweSample*> cipherArray, TFheGateBootstrappingCloudKeySet* bk);
 	// void sha256Init(std::vector<int> tempAH, char* buf, int size);
 
 };

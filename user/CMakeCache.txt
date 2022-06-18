@@ -15,16 +15,71 @@
 ########################
 
 //Value Computed by CMake
-ABY_BINARY_DIR:STATIC=/home/kali/Desktop/hw-project/user
+ABY_BINARY_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY
+
+//Build executables
+ABY_BUILD_EXE:BOOL=OFF
 
 //The directory containing a CMake configuration file for ABY.
 ABY_DIR:PATH=/usr/local/lib/cmake/ABY
 
 //Value Computed by CMake
-ABY_IS_TOP_LEVEL:STATIC=ON
+ABY_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-ABY_SOURCE_DIR:STATIC=/home/kali/Desktop/hw-project/user
+ABY_SOURCE_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY
+
+//Relic align
+ALIGN:STRING=16
+
+//Allocation policy
+ALLOC:STRING=AUTO
+
+//Build amalgamation
+AMALG:BOOL=OFF
+
+//Architecture to be used in relic
+ARCH:STRING=X64
+
+//arithmetic utils used in relic
+ARITH:STRING=curve2251-sse
+
+//Build with ASan and UBSan (gcc/clang only)
+AUSAN:BOOL=OFF
+
+//Relic amount of benchmarks on random values, 0 for disable
+BENCH:STRING=0
+
+//Build with big-endian support
+BIGED:BOOL=OFF
+
+//Number of Karatsuba levels.
+BN_KARAT:STRING=0
+
+//Effective size in words
+BN_MAGNI:STRING=DOUBLE
+
+//Method for multiple precision arithmetic.
+BN_METHD:STRING=COMBA;COMBA;MONTY;SLIDE;BASIC;BASIC
+
+//Arithmetic precision in bits
+BN_PRECI:STRING=1024
+
+//The directory containing a CMake configuration file for Boost.
+Boost_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0
+
+//Path to a file.
+Boost_INCLUDE_DIR:PATH=/usr/include
+
+Boost_SYSTEM_LIBRARY_RELEASE:STRING=/usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
+
+Boost_THREAD_LIBRARY_RELEASE:STRING=/usr/lib/x86_64-linux-gnu/libboost_thread.so.1.74.0
+
+//Relic cflags
+CFLAGS:STRING=-O3 -funroll-loops -fomit-frame-pointer -march=core2 -msse4.2 -mpclmul
+
+//Build with error-checking support
+CHECK:BOOL=off
 
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
@@ -40,7 +95,7 @@ CMAKE_BUILD_TYPE:STRING=
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
-CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
+CMAKE_CXX_COMPILER:STRING=/usr/bin/c++
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -66,7 +121,7 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 //C compiler
-CMAKE_C_COMPILER:FILEPATH=/usr/bin/cc
+CMAKE_C_COMPILER:STRING=/usr/bin/cc
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -236,8 +291,153 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Build with colored output
+COLOR:BOOL=ON
+
+//Number of available processor cores.
+CORES:STRING=1
+
+//Support for faster CRT-based exponentiation in factoring-based
+// cryptosystems.
+CP_CRT:BOOL=ON
+
+//RSA padding
+CP_RSAPD:STRING=PKCS2
+
+//Build with debugging support
+DEBUG:BOOL=off
+
+//Build documentation
+DOCUM:BOOL=ON
+
+//Dot tool for use with Doxygen
+DOXYGEN_DOT_EXECUTABLE:FILEPATH=/usr/bin/dot
+
+//Doxygen documentation generation tool (http://www.doxygen.org)
+DOXYGEN_EXECUTABLE:FILEPATH=DOXYGEN_EXECUTABLE-NOTFOUND
+
+//Width of precomputation table for fixed point methods.
+EB_DEPTH:STRING=4
+
+//Support for Koblitz anomalous binary curves
+EB_KBLTZ:BOOL=ON
+
+//Methods for eb in relic
+EB_METHD:STRING=PROJC;LODAH;COMBS;INTER
+
+//Use mixed coordinates
+EB_MIXED:BOOL=ON
+
+//Support for ordinary curves without endomorphisms
+EB_PLAIN:BOOL=ON
+
+//Build precomputation table for generator
+EB_PRECO:BOOL=ON
+
+//Width of window processing for unknown point methods.
+EB_WIDTH:STRING=4
+
+//Prefer (prime or binary) curves with endomorphisms
+EC_ENDOM:BOOL=OFF
+
+//Methods for ec in relic
+EC_METHD:STRING=CHAR2
+
+//Width of precomputation table for fixed point methods.
+ED_DEPTH:STRING=4
+
+//Method for prime elliptic Edwards curve arithmetic.
+ED_METHD:STRING=PROJC;LWNAF;COMBS;INTER
+
+//Build precomputation table for generator
+ED_PRECO:BOOL=ON
+
+//Width of window processing for unknown point methods.
+ED_WIDTH:STRING=4
+
+//Build tests
+ENCRYPTO_UTILS_BUILD_TESTS:BOOL=OFF
+
+//Value Computed by CMake
+ENCRYPTO_utils_BINARY_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/ENCRYPTO_utils
+
 //The directory containing a CMake configuration file for ENCRYPTO_utils.
-ENCRYPTO_utils_DIR:PATH=/usr/local/lib/cmake/ENCRYPTO_utils
+ENCRYPTO_utils_DIR:PATH=ENCRYPTO_utils_DIR-NOTFOUND
+
+//Value Computed by CMake
+ENCRYPTO_utils_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+ENCRYPTO_utils_SOURCE_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/ENCRYPTO_utils
+
+//Use contant-time SSWU and isogeny map for hashing
+EP_CTMAP:BOOL=ON
+
+//Width of precomputation table for fixed point methods.
+EP_DEPTH:STRING=4
+
+//Support for ordinary curves with endomorphisms
+EP_ENDOM:BOOL=ON
+
+//Method for prime elliptic curve arithmetic.
+EP_METHD:STRING=PROJC;LWNAF;COMBS;INTER
+
+//Use mixed coordinates
+EP_MIXED:BOOL=ON
+
+//Support for ordinary curves without endomorphisms
+EP_PLAIN:BOOL=ON
+
+//Build precomputation table for generator
+EP_PRECO:BOOL=ON
+
+//Support for supersingular curves
+EP_SUPER:BOOL=ON
+
+//Width of window processing for unknown point methods.
+EP_WIDTH:STRING=4
+
+//Number of Karatsuba levels.
+FB_KARAT:STRING=0
+
+//Methods for fb in relic
+FB_METHD:STRING=INTEG;INTEG;QUICK;QUICK;QUICK;QUICK;LOWER;SLIDE;QUICK
+
+//security level of the ecc binary curve in relic
+FB_POLYN:STRING=251
+
+//Precompute multiplication table for sqrt(z).
+FB_PRECO:STRING=on
+
+//Prefer square-root friendly polynomials.
+FB_SQRTF:BOOL=off
+
+//Prefer trinomials.
+FB_TRINO:BOOL=ON
+
+//Width of window processing for exponentiation methods.
+FB_WIDTH:STRING=4
+
+//Method for prime extension field arithmetic.
+FPX_METHD:STRING=INTEG;INTEG;LAZYR
+
+//Number of Karatsuba levels.
+FP_KARAT:STRING=0
+
+//Method for prime field arithmetic.
+FP_METHD:STRING=INTEG;INTEG;INTEG;MONTY;MONTY;SLIDE
+
+//Prefer special form primes over random primes.
+FP_PMERS:BOOL=OFF
+
+//Prime modulus size
+FP_PRIME:STRING=256
+
+//Use -1 as quadratic non-residue.
+FP_QNRES:BOOL=OFF
+
+//Width of window processing for exponentiation methods.
+FP_WIDTH:STRING=4
 
 //Path to a file.
 GMPXX_INCLUDE_DIR:PATH=/usr/include
@@ -247,6 +447,9 @@ GMPXX_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libgmpxx.so
 
 //Path to a file.
 GMP_INCLUDE_DIR:PATH=/usr/include/x86_64-linux-gnu
+
+//Path to a library.
+GMP_LIBRARIES:FILEPATH=/usr/lib/x86_64-linux-gnu/libgmp.so
 
 //Path to a library.
 GMP_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libgmp.so
@@ -260,6 +463,12 @@ HELibDemo_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 HELibDemo_SOURCE_DIR:STATIC=/home/kali/Desktop/hw-project/user
 
+//Build label
+LABEL:STRING=
+
+//Method for hash functions.
+MD_METHD:STRING=SH256
+
 //The directory containing a CMake configuration file for MIRACL.
 MIRACL_DIR:PATH=MIRACL_DIR-NOTFOUND
 
@@ -272,14 +481,110 @@ OPENSSL_INCLUDE_DIR:PATH=/usr/include
 //Path to a library.
 OPENSSL_SSL_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libssl.so
 
+//Operating system
+OPSYS:STRING=LINUX
+
+//Build executables
+OTEXTENSION_BUILD_EXE:BOOL=OFF
+
+//Value Computed by CMake
+OTExtension_BINARY_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/OTExtension
+
 //The directory containing a CMake configuration file for OTExtension.
 OTExtension_DIR:PATH=/usr/local/lib/cmake/OTExtension
+
+//Value Computed by CMake
+OTExtension_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+OTExtension_SOURCE_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/OTExtension
+
+//Build with overhead estimation
+OVERH:BOOL=OFF
 
 //Arguments to supply to pkg-config
 PKG_CONFIG_ARGN:STRING=
 
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
+//Method for pairing over prime curves.
+PP_METHD:STRING=LAZYR;OATEP
+
+//Build with profiling support
+PROFL:BOOL=off
+
+//Build with printing disabled
+QUIET:BOOL=OFF
+
+//Pseudo-random number generator
+RAND:STRING=HASHD
+
+//Value Computed by CMake
+RELIC_BINARY_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/ENCRYPTO_utils/extern/relic
+
+//The directory containing a CMake configuration file for RELIC.
+RELIC_DIR:PATH=/usr/local/cmake
+
+//Value Computed by CMake
+RELIC_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+RELIC_SOURCE_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/ENCRYPTO_utils/extern/relic
+
+//Path to a file.
+RLC_INCLUDE_DIR:PATH=/usr/local/include
+
+//Path to a library.
+RLC_LIBRARY:FILEPATH=/usr/local/lib/librelic.so
+
+//Random number generator seeder
+SEED:STRING=UDEV
+
+//Build shared library
+SHLIB:BOOL=off
+
+//Arguments to call a simulator of the target platform.
+SIMAR:STRING=
+
+//Path to call a simulator of the target platform.
+SIMUL:STRING=
+
+//Build static binaries
+STBIN:BOOL=OFF
+
+//Build static library
+STLIB:BOOL=on
+
+//Build only the selected algorithms
+STRIP:BOOL=OFF
+
+//Relic amount of random tests, 0 for disable
+TESTS:STRING=0
+
+//Relic timer
+TIMER:STRING=CYCLE
+
+//Build with detailed error messages
+VERBS:BOOL=ON
+
+//Relic algorithms
+WITH:STRING=MD;DV;BN;FB;EB;EC
+
+//Relic word size in bits
+WSIZE:STRING=64
+
+//The directory containing a CMake configuration file for boost_atomic.
+boost_atomic_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/boost_atomic-1.74.0
+
+//The directory containing a CMake configuration file for boost_headers.
+boost_headers_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0
+
+//The directory containing a CMake configuration file for boost_system.
+boost_system_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/boost_system-1.74.0
+
+//The directory containing a CMake configuration file for boost_thread.
+boost_thread_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/boost_thread-1.74.0
 
 //The directory containing a CMake configuration file for nlohmann_json.
 nlohmann_json_DIR:PATH=/usr/local/lib/cmake/nlohmann_json
@@ -290,11 +595,16 @@ pkgcfg_lib__OPENSSL_crypto:FILEPATH=/usr/lib/x86_64-linux-gnu/libcrypto.so
 //Path to a library.
 pkgcfg_lib__OPENSSL_ssl:FILEPATH=/usr/lib/x86_64-linux-gnu/libssl.so
 
+//Dependencies for the target
+relic_s_LIB_DEPENDS:STATIC=general;/usr/lib/x86_64-linux-gnu/libgmp.so;general;rt;
+
 
 ########################
 # INTERNAL cache entries
 ########################
 
+//ADVANCED property for variable: Boost_DIR
+Boost_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_ADDR2LINE
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR
@@ -373,6 +683,14 @@ CMAKE_GENERATOR_INSTANCE:INTERNAL=
 CMAKE_GENERATOR_PLATFORM:INTERNAL=
 //Name of generator toolset.
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
+//Test CMAKE_HAVE_LIBC_PTHREAD
+CMAKE_HAVE_LIBC_PTHREAD:INTERNAL=
+//Have library pthreads
+CMAKE_HAVE_PTHREADS_CREATE:INTERNAL=
+//Have library pthread
+CMAKE_HAVE_PTHREAD_CREATE:INTERNAL=1
+//Have include pthread.h
+CMAKE_HAVE_PTHREAD_H:INTERNAL=1
 //Source directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/kali/Desktop/hw-project/user
@@ -395,7 +713,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=8
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -438,8 +756,20 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: DOXYGEN_DOT_EXECUTABLE
+DOXYGEN_DOT_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: DOXYGEN_EXECUTABLE
+DOXYGEN_EXECUTABLE-ADVANCED:INTERNAL=1
+//Details about finding Boost
+FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake][cfound components: thread system ][v1.74.0(1.66.0)]
+//Details about finding GMP
+FIND_PACKAGE_MESSAGE_DETAILS_GMP:INTERNAL=[/usr/lib/x86_64-linux-gnu/libgmp.so][/usr/include/x86_64-linux-gnu][v()]
+//Details about finding GMPXX
+FIND_PACKAGE_MESSAGE_DETAILS_GMPXX:INTERNAL=[/usr/lib/x86_64-linux-gnu/libgmpxx.so][/usr/include][v()]
 //Details about finding OpenSSL
 FIND_PACKAGE_MESSAGE_DETAILS_OpenSSL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libcrypto.so][/usr/include][c ][v1.1.1o()]
+//Details about finding Threads
+FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding nlohmann_json
 FIND_PACKAGE_MESSAGE_DETAILS_nlohmann_json:INTERNAL=[/usr/local/lib/cmake/nlohmann_json/nlohmann_jsonConfig.cmake][v3.10.5()]
 //ADVANCED property for variable: GMPXX_INCLUDE_DIR
@@ -448,8 +778,16 @@ GMPXX_INCLUDE_DIR-ADVANCED:INTERNAL=1
 GMPXX_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: GMP_INCLUDE_DIR
 GMP_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: GMP_LIBRARIES
+GMP_LIBRARIES-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: GMP_LIBRARY
 GMP_LIBRARY-ADVANCED:INTERNAL=1
+//Have function backtrace
+HAVE_BACKTRACE:INTERNAL=1
+//Have function backtrace_symbols
+HAVE_BACKTRACE_SYMBOLS:INTERNAL=1
+//Have include execinfo.h
+HAVE_EXECINFO_H:INTERNAL=1
 //ADVANCED property for variable: OPENSSL_CRYPTO_LIBRARY
 OPENSSL_CRYPTO_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENSSL_INCLUDE_DIR
@@ -497,6 +835,14 @@ _OPENSSL_openssl_PREFIX:INTERNAL=
 _OPENSSL_openssl_VERSION:INTERNAL=
 __pkg_config_arguments__OPENSSL:INTERNAL=QUIET;openssl
 __pkg_config_checked__OPENSSL:INTERNAL=1
+//ADVANCED property for variable: boost_atomic_DIR
+boost_atomic_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_headers_DIR
+boost_headers_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_system_DIR
+boost_system_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_thread_DIR
+boost_thread_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib__OPENSSL_crypto
 pkgcfg_lib__OPENSSL_crypto-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib__OPENSSL_ssl

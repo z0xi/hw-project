@@ -447,7 +447,6 @@ Verifier::obfuscateData(int fileNUM, int obfuscatedNum, std::vector<LweSample*> 
 };
 
 int run(CTcpServer TcpServer, int cfd){  
-
     Verifier verifier;
 
     int recv_data[20];
@@ -463,6 +462,24 @@ int run(CTcpServer TcpServer, int cfd){
     //debug
     if (TcpServer.RecvFile("verifier_folder/enc_credential_v.json", cfd) == false) {
         perror("Recv credential fail");
+    }
+
+    //Connect java socket
+    int sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    sockaddr_in serAddr;
+    serAddr.sin_family = AF_INET;
+    serAddr.sin_port = htons(8888);
+    serAddr.sin_addr.s_addr = inet_addr("192.168.95.1");
+    if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) != 0)
+    {  //连接失败 
+        printf("connect java error !");
+        close(sclient);
+        return 0;
+    }
+    char recData[1];
+    int ret = recv(sclient, recData, 9, 0);
+    if (!strcmp(recData,"FileReady")) {
+      std::cout<<"on-chain attribute is OK!"<<std::endl;
     }
 
     std::ifstream jsonstream0("verifier_folder/to_v_attr.json");
@@ -543,19 +560,7 @@ int run(CTcpServer TcpServer, int cfd){
     get_maping_graph(mulList, "verifier_folder/client_X_randMulList", fileNUM);
     get_maping_graph(bufArray, "verifier_folder/decrypted_confused_data", fileNUM);
 
-
-    //Connect java socket
-    int sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    sockaddr_in serAddr;
-    serAddr.sin_family = AF_INET;
-    serAddr.sin_port = htons(8888);
-    serAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) != 0)
-    {  //连接失败 
-        printf("connect java error !");
-        close(sclient);
-        return 0;
-    }
+    std::cout<<"Recv OK!"<<std::endl;;
     std::string returncode ="success";
   
     for(int i =0; i < fileNUM;i++){
@@ -566,6 +571,7 @@ int run(CTcpServer TcpServer, int cfd){
       }
     }
     send(sclient, returncode.c_str(), returncode.length(), 0);
+    std::cout<<"Send JAVA backend OK!"<<std::endl;;
     close(sclient);
     return 1;  
  }  

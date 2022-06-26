@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         printf("TcpClient.ConnectToServer failed,exit...\n"); 
         return -1;
     }
-    user.keyGen();
+    // user.keyGen();
     // user.encrypt(buf, sizeof(buf));
     // std::cout<< "Send cipher size"<<std::endl;
     // user.bufSize = sizeof(buf);

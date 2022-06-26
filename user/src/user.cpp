@@ -30,14 +30,14 @@ void save_maping_graph(uint16_t*  g_maping_graph, char *path, int length)
 }
 
 void decrypt(uint16_t* bufArray,int bufSize){
-    
+
     FILE* secret_key = fopen("client_folder/secret.key","rb");
     TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
 	const TFheGateBootstrappingParameterSet* params = key->params;
     fclose(secret_key);
 	FILE* answer_data = fopen("client_folder/verifier_confused_data","rb");
 	LweSample* confused_data = new_gate_bootstrapping_ciphertext_array(16, params);
-
+    std::cout<<bufSize<<std::endl;
 	for(int j = 0;j < bufSize;j++){
         for (int i=0; i<16; i++) 
             import_gate_bootstrapping_ciphertext_fromFile(answer_data, &confused_data[i], params);
@@ -47,7 +47,7 @@ void decrypt(uint16_t* bufArray,int bufSize){
           answer |= (ai<<i);
         }
 		bufArray[j] = answer;
-        // printf("%d ",answer);
+        // std::cout<<answer<<" "<<std::endl;
     }
 	fclose(answer_data);
 }
@@ -82,6 +82,12 @@ int main(int argc, char **argv)
     TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
     fclose(secret_key);
 
+    for (auto item : attrs.items())
+    {
+        std::string temp = attrs.at(item.key());
+        attrsLength += temp.length();
+    }
+    // // just for debug
     // for (auto item : attrs.items())
     // {
     //     std::string temp = attrs.at(item.key());
@@ -101,8 +107,6 @@ int main(int argc, char **argv)
     //     char * enc_attr_base64 = Base64Encode(attribute.str().c_str(), attribute.str().length(), 0);
     //     enc_credential[item.key()] = enc_attr_base64;
     // }
-    // //debug
-
     // std::ofstream o("client_folder/enc_credential_v.json");
     // o << std::setw(4) << enc_credential << std::endl;
     // if (TcpClient.SendFile("client_folder/enc_credential_v.json") == false) {
@@ -115,6 +119,7 @@ int main(int argc, char **argv)
     std::cout<<"Recv confused data"<<std::endl;
     uint16_t* bufArray= new uint16_t[attrsLength];
     decrypt(bufArray,attrsLength);
+
     save_maping_graph(bufArray, "client_folder/decrypted_confused_data", attrsLength);
     if (TcpClient.SendFile("client_folder/decrypted_confused_data") == false) {
         perror("Recv obfuscated data fail");

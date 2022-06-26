@@ -459,11 +459,6 @@ int run(CTcpServer TcpServer, int cfd){
     }
     std::cout<<"Recv attribute finish"<< std::endl;
 
-    //debug
-    if (TcpServer.RecvFile("verifier_folder/enc_credential_v.json", cfd) == false) {
-        perror("Recv credential fail");
-    }
-
     //Connect java socket
     int sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     sockaddr_in serAddr;

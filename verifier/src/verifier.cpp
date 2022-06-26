@@ -469,7 +469,7 @@ int run(CTcpServer TcpServer, int cfd){
     sockaddr_in serAddr;
     serAddr.sin_family = AF_INET;
     serAddr.sin_port = htons(8888);
-    serAddr.sin_addr.s_addr = inet_addr("192.168.95.1");
+    serAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) != 0)
     {  //连接失败 
         printf("connect java error !");

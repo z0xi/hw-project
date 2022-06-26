@@ -119,54 +119,6 @@ Oracle::multiply(LweSample* product, LweSample* a, LweSample* b, const int nb_bi
     }
 }
 
-
-void 
-Oracle::threadMultiply(std::vector<LweSample*> &product, std::vector<LweSample*> ciphertext, std::vector<int> mulList, int threadNum, const TFheGateBootstrappingCloudKeySet* bk)
-{
-  int num = ciphertext.size();
-	// std::vector<pthread_t> calThreads(threadNum);
-  std::vector<std::thread> my_threads;
-  for(int i =0; i < num; i++){
-    LweSample* temp = new_gate_bootstrapping_ciphertext_array(16, bk->params);
-    product.push_back(temp);
-  }
-  std::vector<int> noMul;
-  std::vector<int> mul;
-  for(int i =0; i < num; i++){
-    if(mulList[i] == 1)
-      noMul.push_back(i);
-    else
-      mul.push_back(i);
-  }
-
-  for (int i = 0; i < noMul.size(); i++){
-    for(int k=0; k < 8; k++)
-      bootsCOPY(&product[noMul[i]][k],&ciphertext[noMul[i]][k], bk);
-    for(int k=8; k < 16; k++)
-      bootsCONSTANT(&product[noMul[i]][k], 0, bk);
-  }
-
-  for (int i = 0; i < mul.size(); ){
-    int j = 0;
-    for(; j < threadNum; j++){
-        LweSample* constant = new_gate_bootstrapping_ciphertext_array(16, bk->params);
-        for(int k =0; k < 16; k++)
-          bootsCONSTANT(&constant[k], (mulList[mul[i+j]]>>k)&1, bk);
-        // std::thread th(&Oracle::multiply, this, product[mul[i+j]], ciphertext[mul[i+j]], constant, 8, bk);
-        // my_threads.push_back(th);
-        my_threads.push_back(std::thread(&Oracle::multiply, this, product[mul[i+j]], ciphertext[mul[i+j]], constant, 8, bk));
-        // std::cout<<"thread begin "<< my_threads[j].get_id() <<std::endl;
-    }
-    void *status;
-    for(int k = 0; k < threadNum; k++ ) {
-      my_threads[k].join();
-    }
-    my_threads.clear();
-    i = i + threadNum;
-  }
-}
-
-
 void
 Oracle::full_adder_MUX(LweSample *sum, const LweSample *x, const LweSample *y, const int32_t nb_bits,
                     const TFheGateBootstrappingCloudKeySet* bk) {
@@ -289,37 +241,6 @@ Oracle::wallace_multiplier(LweSample *result,
 }
 
 void 
-Oracle::threadAdd(std::vector<LweSample*> &product, std::vector<LweSample*> ciphertext, std::vector<int> addList, int threadNum, const TFheGateBootstrappingCloudKeySet* bk)
-{
-  int num = ciphertext.size();
-	// std::vector<pthread_t> calThreads(threadNum);
-  std::vector<std::thread*> my_threads;
-  for(int i =0; i < num; i++){
-    LweSample* temp = new_gate_bootstrapping_ciphertext_array(16, bk->params);
-    product.push_back(temp);
-  }
-
-  for (int i = 0; i < num; ){
-    int j = 0;
-    for(; j < threadNum; j++){
-        LweSample* constant = new_gate_bootstrapping_ciphertext_array(16, bk->params);
-        for(int k =0; k < 16; k++)
-          bootsCONSTANT(&constant[k], (addList[i+j]>>k)&1, bk);
-          //Can't work. Wait to fix
-        // std::thread th(&Oracle::full_adder_MUX, this, product[i+j], ciphertext[i+j], constant, 16, bk);
-        // my_threads.push_back(&th);
-    }
-    void *status;
-    for(int k = 0; k < threadNum; k++ ) {
-      my_threads[k]->join();
-    }
-    my_threads.clear();
-    i = i + threadNum;
-  }
-}
-
-
-void 
 Oracle::save_maping_graph(std::vector<int> g_maping_graph, char *path, int length)
 {
 	std::ofstream fp(path, std::ios::trunc);//只写文件 + trunc若文件存在则删除后重建
@@ -365,13 +286,9 @@ Oracle::obfuscateData(int fileNUM, std::vector<int> isCipher, int obfuscatedNum,
         }
         tempMul.push_back(temp);
     }
-    // threadMultiply(tempMul, cipherArray, randMulList, 2, bk);
     std::cout<< "Mul finished"<<std::endl;
     std::vector<int> randAddList = GenerateAddList(0, 127,fileNUM,ifList);
-  for(int i = 0;i < fileNUM;i++){
-  printf("%d ",randAddList[i]);
-}
-    // threadAdd(tempAdd, tempMul, randAddList, 2, bk);
+
     for(int i =0; i < fileNUM; i++){
       for(int j =0; j < 16; j++){
         bootsCONSTANT(&constant[j], (randAddList[i]>>j)&1, bk);
@@ -397,6 +314,7 @@ Oracle::obfuscateData(int fileNUM, std::vector<int> isCipher, int obfuscatedNum,
 bool run(CTcpServer TcpServer, int cfd){
     Oracle oracle;
     int recv_data[20];
+
     if (TcpServer.RecvFile("server_folder/cloud.key", cfd) == false) {
         perror("Recv key fail");
     }
@@ -405,10 +323,10 @@ bool run(CTcpServer TcpServer, int cfd){
         perror("Recv credential fail");
     }
 
-    //按顺序接收属性对应密文
-    std::ifstream jsonstream("server_folder/enc_credential.json");//读入json文件
-    nlohmann::json credential; //定义json j
-    jsonstream >> credential;//将文件中的json数据转入j
+    //根据enc_credential.json，按顺序接收属性对应密文并保存
+    std::ifstream jsonstream("server_folder/enc_credential.json");
+    nlohmann::json credential; 
+    jsonstream >> credential;
     nlohmann::json information;
     information = credential["CredentialInformation"];
     std::string signature_base64 = credential["Signature"];
@@ -431,7 +349,7 @@ bool run(CTcpServer TcpServer, int cfd){
     TFheGateBootstrappingCloudKeySet* bk = new_tfheGateBootstrappingCloudKeySet_fromFile(cloud_key);
     fclose(cloud_key);
 
-    //把属性名加密并与属性值合并
+    //把属性名加密并与属性值合并，记录其中消息总数，生成的isCipher记录其中消息为属性值的index
     std::vector<LweSample*> cipherArray;
     std::vector<int> isCipher;
 
@@ -463,6 +381,8 @@ bool run(CTcpServer TcpServer, int cfd){
       fclose(cloud_data);
     }
 
+
+    //对数据进行混淆
     int obfuscatedNum = 10;
     clock_t start, finish;
     double  duration;
@@ -471,7 +391,6 @@ bool run(CTcpServer TcpServer, int cfd){
     finish = clock();    
     duration = (double)(finish - start) / CLOCKS_PER_SEC;    
     std::cout<<"obfuscation"<< duration<<" seconds"<<std::endl;
-        //Save obfuscated ciphertext
     FILE* confused_data = fopen("server_folder/confused_data","wb");
     for(int i = 0;i < tempAdd.size(); i++){
         for (int j=0; j<16; j++) 
@@ -479,34 +398,14 @@ bool run(CTcpServer TcpServer, int cfd){
     }
     fclose(confused_data);
 
+    //保存混淆值并发给client端
     if (TcpServer.SendFile("server_folder/confused_data", cfd) == false) {
         perror("send fail");
     }
 
-        //Just For Debug
-//         FILE* secret_key = fopen("client_folder/secret.key","rb");
-//     TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
-//     fclose(secret_key);
-//         std::string s_answer="";
-//         std::string ss_answer="";
-//       for(int j = 0;j < fileNUM;j++){
-//         int answer = 0;
-//         int answer1 = 0;
-//         for (int i=0; i<16; i++) {
-//           int ai = bootsSymDecrypt(&tempAdd[j][i], key)>0;
-//           answer |= (ai<<i);
-//         }
-//                 ss_answer+=char(answer1);
-
-//         for (int i=0; i<8; i++) {
-//           int ai = bootsSymDecrypt(&cipherArray[j][i], key)>0;
-//           answer1 |= (ai<<i);
-//         }
-//         s_answer+=char(answer1);
-//         printf("%d %d \n",answer1,answer);
-//     }
-//     std::cout<<s_answer<<std::endl;
-//     std::cout<<ss_answer<<std::endl;
+    //布尔电路配置
+    //e_role为该端角色，secparam为安全参数这里不使能，nvals门电路同时操作数个数，nthread为使用线程
+    //port为本端开放端口号
 	  e_role role = SERVER;
     uint32_t bitlen = 32, nvals = 1, secparam = 128, nthreads = 1;
     uint16_t port = 7766;
@@ -518,14 +417,14 @@ bool run(CTcpServer TcpServer, int cfd){
     OracleOnlineProtocol run_protocol;
     bool success = run_protocol.runProtocolCircuit(signature_base64, fileNUM, role, address, port, seclvl, nvals, nthreads, mt_alg, sharing);
 
-    //Connect java socket
+    //与区块链后端通信并上链
     int sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     sockaddr_in serAddr;
     serAddr.sin_family = AF_INET;
     serAddr.sin_port = htons(8899);
     serAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) != 0)
-    {  //连接失败 
+    {
         printf("connect java error !");
         close(sclient);
         return 0;

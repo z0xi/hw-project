@@ -120,12 +120,10 @@ int main(int argc, char **argv)
     }
     // user.keyGen();
     // user.encrypt(buf, sizeof(buf));
-    // std::cout<< "Send cipher size"<<std::endl;
-    // user.bufSize = sizeof(buf);
 
-    std::ifstream jsonstream("client_folder/credential.json");//读入json文件
-    nlohmann::json credential; //定义json j
-    jsonstream >> credential;//将文件中的json数据转入j
+    std::ifstream jsonstream("client_folder/credential.json");
+    nlohmann::json credential;
+    jsonstream >> credential;
     nlohmann::json information;
     information = credential["CredentialInformation"];
 
@@ -136,10 +134,10 @@ int main(int argc, char **argv)
     FILE* secret_key = fopen("client_folder/secret.key","rb");
     TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
     fclose(secret_key);
-
-    //if necessary, the params are inside the key
     const TFheGateBootstrappingParameterSet* params = key->params;
-    // std::vector<int> cipherLength;
+
+
+    //提取credential.json中属性值，记录每个属性值的字符数，加密属性值并保存
     int len_of_attr = information.size();
     int cipherLength[20]={0};
     uint32_t totalSize =0 ;
@@ -169,6 +167,8 @@ int main(int argc, char **argv)
         }
         fclose(attribute);
     }
+
+    //创建enc_credential.json记录每个属性字段得长度，发送server端
     for (auto item : information.items())
     {
         std::string temp = information.at(item.key());
@@ -176,13 +176,13 @@ int main(int argc, char **argv)
     }
     credential["CredentialInformation"] = information;
     std::cout<<credential;
-
     std::ofstream o("client_folder/enc_credential.json");
     o << std::setw(4) << credential << std::endl;
     if (TcpClient.SendFile("client_folder/enc_credential.json") == false) {
         perror("send fail");
     }
 
+    //按照enc_credential.json中顺序发送属性密文
     for (auto item : information.items())
     {
         char tmp[30];
@@ -197,22 +197,12 @@ int main(int argc, char **argv)
     }
     std::cout<<"Wait for confused data"<<std::endl;
 
+    //接收混淆值
     if (TcpClient.RecvFile("client_folder/confused_data") == false) {
         perror("Recv obfuscated data fail");
     }
     std::cout<<"Recv confused data"<<std::endl;
   
-    // LweSample* ciphertext = new_gate_bootstrapping_ciphertext_array(8, params);
-    // FILE* cloud_data = fopen("client_folder/cloud_data","wb");
-    // for(int i = 0;i < sizeof(buf); i++){
-    //     for (int j=0; j<8; j++) {
-    //         bootsSymEncrypt(&ciphertext[j], (buf[i]>>j)&1, key);
-    //     }
-    //     // export_gate_bootstrapping_ciphertext_toFile(cloud_data, ciphertext, params);
-    //     for (int j=0; j<8; j++) 
-    //         export_gate_bootstrapping_ciphertext_toFile(cloud_data, &ciphertext[j], params);
-    // }
-    // fclose(cloud_data);
 	e_role role = CLIENT;
 	uint32_t bitlen = 32, nvals = 1, secparam = 128, nthreads = 1;
 	uint16_t port = 7766;
@@ -223,15 +213,10 @@ int main(int argc, char **argv)
 	seclvl seclvl = get_sec_lvl(secparam);
     
     ClientOnlineProtocol run_protocol;
-    // uint16_t* bufArray = new uint16_t(bufSize);
-    // Client::decrypt(bufArray, bufSize);
-    // run_protocol.msgArray = bufArray;
-    // ClientOnlineProtocol run_protocol = new ClientOnlineProtocol();
-	// test_sha1_circuit(role, address, port, seclvl, nvals, nthreads, mt_alg, sharing);
 	bool success = run_protocol.runProtocolCircuit(totalSize,role, address, port, seclvl, nvals, nthreads, mt_alg, sharing);
     if (success)
     {
-    printf("Finished\n");/*在屏幕上打印出来 */  
+        printf("Finished\n");/*在屏幕上打印出来 */  
     }
     return 0;  
 }  

@@ -55,13 +55,12 @@ void decrypt(uint16_t* bufArray,int bufSize){
 int main(int argc, char **argv)  
 {  
     CTcpClient TcpClient;
-    // 请求连接
+
     if (TcpClient.ConnectToServer("127.0.0.1", 5052) == false)
     {
         printf("User.ConnectToServer failed,exit...\n"); 
         return -1;
     }
-
     printf("Connected\n");  
 
     if (TcpClient.SendFile("client_folder/cloud.key") == false) {
@@ -72,6 +71,8 @@ int main(int argc, char **argv)
     }
     printf("Wait for confused data\n");  
 
+
+    //to_v_attr.json接收自用户前端，为用户的claim，提供给verifier用于与链上属性进行对比
     std::ifstream jsonstream("client_folder/to_v_attr.json");
     nlohmann::json attrs;
     jsonstream >> attrs;
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
     //     perror("send fail");
     // }
 
+    //接收verifier混淆值并解密
     if (TcpClient.RecvFile("client_folder/verifier_confused_data") == false) {
         perror("Recv obfuscated data fail");
     }
@@ -121,6 +123,8 @@ int main(int argc, char **argv)
     decrypt(bufArray,attrsLength);
 
     save_maping_graph(bufArray, "client_folder/decrypted_confused_data", attrsLength);
+
+    //返回verifier解密后的混淆值
     if (TcpClient.SendFile("client_folder/decrypted_confused_data") == false) {
         perror("Recv obfuscated data fail");
     }

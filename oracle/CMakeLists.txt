@@ -29,4 +29,4 @@ find_package(nlohmann_json REQUIRED)
 
 add_executable(oracle ./src/main.cpp ./src/oracle.cpp ./src/openssl_utils/openssl_utils.cpp ./src/ctcpserver.cpp ./src/oracle_circuit.cpp)
 
-target_link_libraries(oracle -ltfhe-spqlios-fma ${DEP_LIBS} ABY::aby ENCRYPTO_utils::encrypto_utils nlohmann_json::nlohmann_json -lpthread -lm)
+target_link_libraries(oracle -ltfhe-spqlios-fma ${DEP_LIBS} ABY::aby ENCRYPTO_utils::encrypto_utils nlohmann_json::nlohmann_json)

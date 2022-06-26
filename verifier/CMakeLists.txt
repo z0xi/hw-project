@@ -18,4 +18,4 @@ find_package(nlohmann_json REQUIRED)
 
 add_executable(verifier ./src/main.cpp ./src/verifier.cpp ./src/openssl_utils/openssl_utils.cpp ./src/ctcpserver.cpp)
 
-target_link_libraries(verifier -ltfhe-spqlios-fma ${DEP_LIBS} nlohmann_json::nlohmann_json -lpthread -lm)
+target_link_libraries(verifier -ltfhe-spqlios-fma ${DEP_LIBS} nlohmann_json::nlohmann_json)

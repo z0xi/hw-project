@@ -113,6 +113,7 @@ int main(int argc, char **argv)
     CTcpClient TcpClient;
     Client user;
     // 请求连接
+    std::cout<<"Connect server"<<std::endl;
     if (TcpClient.ConnectToServer("127.0.0.1", 5051) == false)
     {
         printf("TcpClient.ConnectToServer failed,exit...\n"); 
@@ -120,16 +121,14 @@ int main(int argc, char **argv)
     }
     // user.keyGen();
     // user.encrypt(buf, sizeof(buf));
-
+    std::cout<<"Step1: Initializaiton"<<std::endl;
+    std::cout<<"---Key generation(NO)"<<std::endl;
     std::ifstream jsonstream("client_folder/credential.json");
     nlohmann::json credential;
     jsonstream >> credential;
     nlohmann::json information;
     information = credential["CredentialInformation"];
 
-    if (TcpClient.SendFile("client_folder/cloud.key") == false) {
-        perror("send fail");
-    }
 
     FILE* secret_key = fopen("client_folder/secret.key","rb");
     TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
@@ -137,6 +136,7 @@ int main(int argc, char **argv)
     const TFheGateBootstrappingParameterSet* params = key->params;
 
 
+    std::cout<<"---FHEencrypt"<<std::endl;
     //提取credential.json中属性值，记录每个属性值的字符数，加密属性值并保存
     int len_of_attr = information.size();
     int cipherLength[20]={0};
@@ -150,9 +150,9 @@ int main(int argc, char **argv)
         cipherLength[i++] = value.length();
         // cipherLength.push_back(value.length());
         std::sprintf(tmp,"./client_folder/%s", item.key().c_str());
-        std::cout<<tmp<<std::endl;
-        std::cout<<value<<std::endl;
-        std::cout<<value.length()<<std::endl;
+        // std::cout<<tmp<<std::endl;
+        // std::cout<<value<<std::endl;
+        // std::cout<<value.length()<<std::endl;
         totalSize += value.length();
         totalSize += name.length();
         LweSample* c = new_gate_bootstrapping_ciphertext_array(8, params);
@@ -175,9 +175,14 @@ int main(int argc, char **argv)
         information[item.key()] = temp.length();
     }
     credential["CredentialInformation"] = information;
-    std::cout<<credential;
+    // std::cout<<credential;
     std::ofstream o("client_folder/enc_credential.json");
     o << std::setw(4) << credential << std::endl;
+
+    std::cout<<"---Send public key"<<std::endl;
+    if (TcpClient.SendFile("client_folder/cloud.key") == false) {
+        perror("send fail");
+    }
     if (TcpClient.SendFile("client_folder/enc_credential.json") == false) {
         perror("send fail");
     }
@@ -195,14 +200,17 @@ int main(int argc, char **argv)
             perror("send fail");
         }
     }
-    std::cout<<"Wait for confused data"<<std::endl;
+    
+    std::cout<<"---Send encrypted certificate"<<std::endl;
+    std::cout<<"------Wait for confused data"<<std::endl;
 
     //接收混淆值
     if (TcpClient.RecvFile("client_folder/confused_data") == false) {
         perror("Recv obfuscated data fail");
     }
-    std::cout<<"Recv confused data"<<std::endl;
-  
+    std::cout<<"---Recv confused data"<<std::endl;
+    std::cout<<"---FHEdec"<<std::endl;
+    std::cout<<"Step2: Boolean circuit running"<<std::endl;
 	e_role role = CLIENT;
 	uint32_t bitlen = 32, nvals = 1, secparam = 128, nthreads = 1;
 	uint16_t port = 7766;
@@ -216,7 +224,7 @@ int main(int argc, char **argv)
 	bool success = run_protocol.runProtocolCircuit(totalSize,role, address, port, seclvl, nvals, nthreads, mt_alg, sharing);
     if (success)
     {
-        printf("Finished\n");/*在屏幕上打印出来 */  
+        printf("---Success\n");/*在屏幕上打印出来 */  
     }
     return 0;  
 }  

@@ -116,7 +116,7 @@ ClientOnlineProtocol::runProtocolCircuit(uint32_t bufSize, e_role role, const st
           answer |= (ai<<i);
         }
 		msgArray[j] = answer;
-        printf("%d ",answer);
+        // printf("%d ",answer);
     }
 	fclose(answer_data);
 
@@ -138,7 +138,7 @@ ClientOnlineProtocol::runProtocolCircuit(uint32_t bufSize, e_role role, const st
 	out.AttachBuf(s_hash_out->get_clear_value_ptr(), (uint64_t) ABY_SHA256_OUTPUT_BITS * nvals);
 
 	for (uint32_t i = 0; i < nvals; i++) {
-		std::cout << "(" << i << ") Circ:\t";
+		std::cout << " Circ:\t";
 		out.PrintHex(i * ABY_SHA256_OUTPUT_BYTES, (i + 1) * ABY_SHA256_OUTPUT_BYTES);
 	}
 	delete party;

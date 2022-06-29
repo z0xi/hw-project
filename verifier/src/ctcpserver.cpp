@@ -25,7 +25,7 @@ bool CTcpServer::InitServer(int port)
 
     struct sockaddr_in servaddr;    // ?????????????????
     memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;  // ╖©???хи??socket??????????AF_INET
+    servaddr.sin_family = AF_INET;  // О©╫О©╫???О©╫О©╫??socket??????????AF_INET
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);  // ????????????ip???
     servaddr.sin_port = htons(port);  // ???????
     int opt_val = 1;
@@ -145,7 +145,7 @@ bool CTcpServer::RecvFile(const char* filename, int cfd) {
     recv(cfd, strbuffer, LEN, 0);
     int fsize;
     sscanf(strbuffer, "%d", &fsize);
-    printf("the size of file:%d\n", fsize);
+    // printf("the size of file:%d\n", fsize);
     memset(strbuffer, 0, LEN);
     int iret;
     int count = 0;

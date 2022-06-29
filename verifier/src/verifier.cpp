@@ -347,7 +347,7 @@ Verifier::obfuscateData(int fileNUM, int obfuscatedNum, std::vector<LweSample*> 
         tempMul.push_back(temp);
     }
     // threadMultiply(tempMul, cipherArray, randMulList, 2, bk);
-    std::cout<< "Mul finished"<<std::endl;
+    std::cout<< "---Mul finished"<<std::endl;
     std::vector<int> randAddList = GenerateAddList(0, 127,fileNUM,ifList);
 
     // threadAdd(tempAdd, tempMul, randAddList, 2, bk);
@@ -369,23 +369,24 @@ Verifier::obfuscateData(int fileNUM, int obfuscatedNum, std::vector<LweSample*> 
     }
     save_maping_graph(randAddList, "verifier_folder/client_X_randAddList", fileNUM);
 	  save_maping_graph(randMulList, "verifier_folder/client_X_randMulList", fileNUM);
-    std::cout<< "Add finished"<<std::endl;
+    std::cout<< "---Add finished"<<std::endl;
     return tempAdd;
 };
 
 int run(CTcpServer TcpServer, int cfd){  
     Verifier verifier;
-
+    std::cout<<"Step1: Initalization"<<std::endl;
     int recv_data[20];
     if (TcpServer.RecvFile("verifier_folder/cloud.key", cfd) == false) {
         perror("Recv key fail");
     }
-    std::cout<<"Recv public key finish"<< std::endl;
+    std::cout<<"---Recv public key"<< std::endl;
     if (TcpServer.RecvFile("verifier_folder/to_v_attr.json", cfd) == false) {
         perror("Recv credential fail");
     }
-    std::cout<<"Recv attribute finish"<< std::endl;
-
+    std::cout<<"---Recv claim"<< std::endl;
+    
+    std::cout<<"---Connect blockchain backend"<< std::endl;
     //Connect java socket
     int sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     sockaddr_in serAddr;
@@ -401,7 +402,7 @@ int run(CTcpServer TcpServer, int cfd){
     char recData[1];
     int ret = recv(sclient, recData, 9, 0);
     if (!strcmp(recData,"FileReady")) {
-      std::cout<<"on-chain attribute is OK!"<<std::endl;
+      std::cout<<"---Fetch on-chain attributes!"<<std::endl;
     }
 
     std::ifstream jsonstream0("verifier_folder/to_v_attr.json");
@@ -452,6 +453,7 @@ int run(CTcpServer TcpServer, int cfd){
         cipherArray.push_back(temp);
       }
     }
+    std::cout<<"Step2: Begin obfuscation"<<std::endl;
     int obfuscatedNum = 10;
     std::vector<LweSample*> tempAdd = verifier.obfuscateData(fileNUM, obfuscatedNum,cipherArray,bk);
 
@@ -462,14 +464,17 @@ int run(CTcpServer TcpServer, int cfd){
     }
     fclose(confused_data);
 
+    std::cout<<"---Send obfuscated data"<<std::endl;
+
     if (TcpServer.SendFile("verifier_folder/verifier_confused_data", cfd) == false) {
         perror("send fail");
     }
-    std::cout<<"Wait for decrypted confused data"<<std::endl;
+    std::cout<<"------Wait for decrypted data"<<std::endl;
 
     if (TcpServer.RecvFile("verifier_folder/decrypted_confused_data", cfd) == false) {
         perror("Recv credential fail");
     }
+    std::cout<<"---Recv decrypted data"<<std::endl;
     uint16_t addList[fileNUM];
     uint16_t mulList[fileNUM];
     uint16_t bufArray[fileNUM];
@@ -481,16 +486,19 @@ int run(CTcpServer TcpServer, int cfd){
     get_maping_graph(mulList, "verifier_folder/client_X_randMulList", fileNUM);
     get_maping_graph(bufArray, "verifier_folder/decrypted_confused_data", fileNUM);
 
+    std::cout<<"Step3: Verification"<<std::endl;
+    std::cout<<"---Verifying"<<std::endl;;
+
     std::string returncode ="success";
     for(int i =0; i < fileNUM;i++){
       if((bufArray[i] - addList[i] + mulList[i] -1)/ mulList[i] != 0){
-        printf("Attributes verify fail");
+        printf("--Attributes verify fail\n");
         returncode = "fail";
         break;
       }
     }
     send(sclient, returncode.c_str(), returncode.length(), 0);
-    std::cout<<"Send JAVA backend OK!"<<std::endl;;
+    std::cout<<"---User is authorized!"<<std::endl;;
     close(sclient);
     return 1;  
  }  

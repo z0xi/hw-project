@@ -173,9 +173,9 @@ OracleOnlineProtocol::runProtocolCircuit(std::string signature_base64, uint32_t 
 	delete party;
 	bool success= 0;
 	for (uint32_t i = 0; i < nvals; i++) {
-		std::cout << "(" << i << ") Circ:\t";
+		std::cout << "---Circ:\t";
 		out.PrintHex(i * ABY_SHA256_OUTPUT_BYTES, (i + 1) * ABY_SHA256_OUTPUT_BYTES);
-		std::cout << "(" << i << ") Verify:\t";
+		std::cout << "---Verify:\t";
 		verify.PrintHex(i * ABY_SHA256_OUTPUT_BYTES, (i + 1) * ABY_SHA256_OUTPUT_BYTES);
 		assert(success = verify.IsEqual(out, i*ABY_SHA256_OUTPUT_BITS, (i+1)*ABY_SHA256_OUTPUT_BITS));
 	}

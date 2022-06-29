@@ -10,24 +10,24 @@
 #define LEN 4096
 CTcpClient::CTcpClient()
 {
-    m_sockfd = 0;  // ¹¹Ôìº¯Êý³õÊ¼»¯m_sockfd
+    m_sockfd = 0;  // ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½m_sockfd
 }
 
 CTcpClient::~CTcpClient()
 {
-    if (m_sockfd != 0) close(m_sockfd);  // Îö¹¹º¯Êý¹Ø±Õm_sockfd
+    if (m_sockfd != 0) close(m_sockfd);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø±ï¿½m_sockfd
 }
 
-// Ïò·þÎñÆ÷·¢ÆðÁ¬½Ó£¬serverip-·þÎñ¶Ëip£¬portÍ¨ÐÅ¶Ë¿Ú
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½serverip-ï¿½ï¿½ï¿½ï¿½ï¿½ipï¿½ï¿½portÍ¨ï¿½Å¶Ë¿ï¿½
 bool CTcpClient::ConnectToServer(const char* serverip, const int port)
 {
-    m_sockfd = socket(AF_INET, SOCK_STREAM, 0); // ´´½¨¿Í»§¶ËµÄsocket
-    struct hostent* h; // ipµØÖ·ÐÅÏ¢µÄÊý¾Ý½á¹¹
+    m_sockfd = socket(AF_INET, SOCK_STREAM, 0); // ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½ï¿½Ëµï¿½socket
+    struct hostent* h; // ipï¿½ï¿½Ö·ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½Ý½á¹¹
     if ((h = gethostbyname(serverip)) == 0)
     {
         close(m_sockfd); m_sockfd = 0; return false;
     }
-    // °Ñ·þÎñÆ÷µÄµØÖ·ºÍ¶Ë¿Ú×ª»»ÎªÊý¾Ý½á¹¹
+    // ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Ö·ï¿½Í¶Ë¿ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½Ý½á¹¹
     struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -35,7 +35,7 @@ bool CTcpClient::ConnectToServer(const char* serverip, const int port)
     memcpy(&servaddr.sin_addr, h->h_addr, h->h_length);
     int opt_val = 1;
     setsockopt(m_sockfd, IPPROTO_TCP, TCP_NODELAY, (void*)&opt_val, sizeof(opt_val));
-    // Ïò·þÎñÆ÷·¢ÆðÁ¬½ÓÇëÇó
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (connect(m_sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) != 0)
     {
         close(m_sockfd); m_sockfd = 0; return false;
@@ -73,7 +73,7 @@ bool CTcpClient::SendFile(const char* filename) {
     }
     if (sum == fsize)
     {
-        printf("´«Êä³É¹¦£¡\n");
+        // printf("ï¿½ï¿½ï¿½ï¿½É¹ï¿½ï¿½ï¿½\n");
     }
     fclose(fp);
     sleep(1);
@@ -87,7 +87,7 @@ bool CTcpClient::RecvFile(const char* filename) {
     Recv(strbuffer, LEN);
     int fsize;
     sscanf(strbuffer, "%d", &fsize);
-    printf("the size of file:%d\n", fsize);
+    // printf("the size of file:%d\n", fsize);
     memset(strbuffer, 0, LEN);
     int iret;
     int count = 0;
@@ -95,7 +95,7 @@ bool CTcpClient::RecvFile(const char* filename) {
         fwrite(strbuffer, 1, iret, fp);
         count += iret;
         if (count >= fsize) {
-            printf("´«Êä³É¹¦£¡\n");
+            // printf("ï¿½ï¿½ï¿½ï¿½É¹ï¿½ï¿½ï¿½\n");
             break;
         }
         memset(strbuffer, 0, LEN);

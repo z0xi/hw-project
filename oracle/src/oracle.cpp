@@ -286,7 +286,7 @@ Oracle::obfuscateData(int fileNUM, std::vector<int> isCipher, int obfuscatedNum,
         }
         tempMul.push_back(temp);
     }
-    std::cout<< "Mul finished"<<std::endl;
+    std::cout<< "---Mul finished"<<std::endl;
     std::vector<int> randAddList = GenerateAddList(0, 127,fileNUM,ifList);
 
     for(int i =0; i < fileNUM; i++){
@@ -307,18 +307,18 @@ Oracle::obfuscateData(int fileNUM, std::vector<int> isCipher, int obfuscatedNum,
     }
     save_maping_graph(randAddList, "server_folder/client_X_randAddList", fileNUM);
 	  save_maping_graph(randMulList, "server_folder/client_X_randMulList", fileNUM);
-    std::cout<< "Add finished"<<std::endl;
+    std::cout<< "---Add finished"<<std::endl;
     return tempAdd;
 };
 
 bool run(CTcpServer TcpServer, int cfd){
     Oracle oracle;
     int recv_data[20];
-
+    std::cout<<"Step1: Initalization"<<std::endl;
     if (TcpServer.RecvFile("server_folder/cloud.key", cfd) == false) {
         perror("Recv key fail");
     }
-    std::cout<<"Recv public key finish"<< std::endl;
+    std::cout<<"---Recv public key"<< std::endl;
     if (TcpServer.RecvFile("server_folder/enc_credential.json", cfd) == false) {
         perror("Recv credential fail");
     }
@@ -343,7 +343,7 @@ bool run(CTcpServer TcpServer, int cfd){
             perror("Recv key fail");
         }
     }
-    std::cout<<"Recv encrypted certificate finish"<< std::endl;
+    std::cout<<"---Recv encrypted certificate"<< std::endl;
 
     FILE* cloud_key = fopen("server_folder/cloud.key","rb");
     TFheGateBootstrappingCloudKeySet* bk = new_tfheGateBootstrappingCloudKeySet_fromFile(cloud_key);
@@ -383,14 +383,15 @@ bool run(CTcpServer TcpServer, int cfd){
 
 
     //对数据进行混淆
-    int obfuscatedNum = 10;
+    std::cout<<"Step2: Begin obfuscation"<<std::endl;
+    int obfuscatedNum = 1;
     clock_t start, finish;
     double  duration;
     start = clock();
     std::vector<LweSample*> tempAdd = oracle.obfuscateData(fileNUM, isCipher, obfuscatedNum,cipherArray,bk);
-    finish = clock();    
+    finish = clock();
     duration = (double)(finish - start) / CLOCKS_PER_SEC;    
-    std::cout<<"obfuscation"<< duration<<" seconds"<<std::endl;
+    std::cout<<"---obfuscation"<< duration<<" seconds"<<std::endl;
     FILE* confused_data = fopen("server_folder/confused_data","wb");
     for(int i = 0;i < tempAdd.size(); i++){
         for (int j=0; j<16; j++) 
@@ -399,10 +400,11 @@ bool run(CTcpServer TcpServer, int cfd){
     fclose(confused_data);
 
     //保存混淆值并发给client端
+    std::cout<<"---Send obfuscated data back to client"<<std::endl;
     if (TcpServer.SendFile("server_folder/confused_data", cfd) == false) {
         perror("send fail");
     }
-
+    std::cout<<"Step3: Boolean circuit running"<<std::endl;
     //布尔电路配置
     //e_role为该端角色，secparam为安全参数这里不使能，nvals门电路同时操作数个数，nthread为使用线程
     //port为本端开放端口号
@@ -418,6 +420,8 @@ bool run(CTcpServer TcpServer, int cfd){
     bool success = run_protocol.runProtocolCircuit(signature_base64, fileNUM, role, address, port, seclvl, nvals, nthreads, mt_alg, sharing);
 
     //与区块链后端通信并上链
+    std::cout<<"Step4: On-chaining"<<std::endl;
+    std::cout<<"---Connect blockchain backend"<<std::endl;
     int sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     sockaddr_in serAddr;
     serAddr.sin_family = AF_INET;
@@ -425,17 +429,17 @@ bool run(CTcpServer TcpServer, int cfd){
     serAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) != 0)
     {
-        printf("connect java error !");
+        printf("---Connect java error!\n");
         close(sclient);
         return 0;
     }
     std::string returncode ="";
     if(success){
-      printf("Verify success\n");
+      printf("---Verify success\n");
       returncode = "success";
     }
     else{
-      printf("Verify fail\n");
+      printf("---Verify fail\n");
       returncode = "fail";
     }
     send(sclient, returncode.c_str(), returncode.length(), 0);

@@ -55,21 +55,23 @@ void decrypt(uint16_t* bufArray,int bufSize){
 int main(int argc, char **argv)  
 {  
     CTcpClient TcpClient;
-
+    std::cout<<"Connect verifier"<<std::endl;
     if (TcpClient.ConnectToServer("127.0.0.1", 5052) == false)
     {
         printf("User.ConnectToServer failed,exit...\n"); 
         return -1;
     }
-    printf("Connected\n");  
-
+    std::cout<<"Step1: Initalization"<<std::endl; 
+    std::cout<<"---Send public key"<<std::endl; 
     if (TcpClient.SendFile("client_folder/cloud.key") == false) {
         perror("send fail");
     }
+
+    std::cout<<"---Send the claim"<<std::endl; 
     if (TcpClient.SendFile("client_folder/to_v_attr.json") == false) {
         perror("send fail");
     }
-    printf("Wait for confused data\n");  
+    std::cout<<"------Wait for confused data"<<std::endl;
 
 
     //to_v_attr.json接收自用户前端，为用户的claim，提供给verifier用于与链上属性进行对比
@@ -115,21 +117,23 @@ int main(int argc, char **argv)
     // }
 
     //接收verifier混淆值并解密
+    std::cout<<"---Recv confused data"<<std::endl; 
     if (TcpClient.RecvFile("client_folder/verifier_confused_data") == false) {
         perror("Recv obfuscated data fail");
     }
-    std::cout<<"Recv confused data"<<std::endl;
+    std::cout<<"Step2: Decryption"<<std::endl;
+    std::cout<<"---Decrypt confused data"<<std::endl; 
     uint16_t* bufArray= new uint16_t[attrsLength];
     decrypt(bufArray,attrsLength);
 
     save_maping_graph(bufArray, "client_folder/decrypted_confused_data", attrsLength);
 
     //返回verifier解密后的混淆值
+    std::cout<<"---Send decrypted data back"<<std::endl; 
     if (TcpClient.SendFile("client_folder/decrypted_confused_data") == false) {
         perror("Recv obfuscated data fail");
     }
-
-    printf("Finished\n");
+    std::cout<<"---Finish"<<std::endl;
 
     return 0;  
 }  

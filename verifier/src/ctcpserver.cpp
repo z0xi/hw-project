@@ -107,7 +107,7 @@ bool CTcpServer::SendFile(const char* filename, int cfd) {
     }
     if (sum == fsize)
     {
-        printf("????????\n");
+        // printf("????????\n");
     }
     fclose(fp);
     sleep(1);

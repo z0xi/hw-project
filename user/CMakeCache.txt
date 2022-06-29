@@ -524,7 +524,7 @@ RAND:STRING=HASHD
 RELIC_BINARY_DIR:STATIC=/home/kali/Desktop/hw-project/user/src/ABY/extern/ENCRYPTO_utils/extern/relic
 
 //The directory containing a CMake configuration file for RELIC.
-RELIC_DIR:PATH=/usr/local/cmake
+RELIC_DIR:PATH=RELIC_DIR-NOTFOUND
 
 //Value Computed by CMake
 RELIC_IS_TOP_LEVEL:STATIC=OFF

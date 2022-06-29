@@ -113,6 +113,8 @@ int main(int argc, char **argv)
     CTcpClient TcpClient;
     Client user;
     // 请求连接
+    std::cout<<"============================================"<<std::endl;
+
     std::cout<<"Connect server"<<std::endl;
     if (TcpClient.ConnectToServer("127.0.0.1", 5051) == false)
     {

@@ -67,7 +67,7 @@ char * Base64Decode(int *out_length, char * input, int length, bool with_new_lin
 	bmem = BIO_push(b64, bmem);
 	int size = BIO_read(bmem, buffer, length);
     *out_length = size;
-    std::cout<<*out_length<<std::endl;
+    // std::cout<<*out_length<<std::endl;
 	BIO_free_all(bmem);
  
 	return buffer;

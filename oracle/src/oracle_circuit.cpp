@@ -153,15 +153,17 @@ OracleOnlineProtocol::runProtocolCircuit(std::string signature_base64, uint32_t 
 	verify.Create(ABY_SHA256_OUTPUT_BITS * nvals);
 	out.AttachBuf(s_hash_out->get_clear_value_ptr(), (uint64_t) ABY_SHA256_OUTPUT_BITS * nvals);
 
+    std::cout<<"---Decrypt signature"<<std::endl;
     std::string pub_filename = "./server_folder/rsa_public_key.pem";
 	std::string signatureToDigest = signature_base64;
     int digest_size;
 	char * digest = Base64Decode(&digest_size, (char *)signatureToDigest.c_str(), signatureToDigest.length(), 0);
-	std::cout << "Base64 Decoded:" <<  digest << std::endl;
-
+	// std::cout << "Base64 Decoded:" <<  digest << std::endl;
     std::string hash = DecryptByPubkeyFile(digest, digest_size, pub_filename);
-	std::cout<<hash<<std::endl;
+	// std::cout<<hash<<std::endl;
 	std::string result;
+	std::cout<<"---Check HASH"<<std::endl;
+
     for (size_t i = 0; i < hash.length(); i += 2)
     {
         std::string byte = hash.substr(i, 2);

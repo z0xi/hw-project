@@ -37,7 +37,7 @@ void decrypt(uint16_t* bufArray,int bufSize){
     fclose(secret_key);
 	FILE* answer_data = fopen("client_folder/verifier_confused_data","rb");
 	LweSample* confused_data = new_gate_bootstrapping_ciphertext_array(16, params);
-    std::cout<<bufSize<<std::endl;
+    // std::cout<<bufSize<<std::endl;
 	for(int j = 0;j < bufSize;j++){
         for (int i=0; i<16; i++) 
             import_gate_bootstrapping_ciphertext_fromFile(answer_data, &confused_data[i], params);
@@ -55,6 +55,8 @@ void decrypt(uint16_t* bufArray,int bufSize){
 int main(int argc, char **argv)  
 {  
     CTcpClient TcpClient;
+    std::cout<<"============================================"<<std::endl;
+
     std::cout<<"Connect verifier"<<std::endl;
     if (TcpClient.ConnectToServer("127.0.0.1", 5052) == false)
     {

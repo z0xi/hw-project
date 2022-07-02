@@ -498,7 +498,7 @@ int run(CTcpServer TcpServer, int cfd){
       }
     }
     send(sclient, returncode, 7, 0);
-    if (!strcmp(recData,"success")) 
+    if (!strcmp(returncode,"success")) 
     	std::cout<<"---User is authorized!"<<std::endl;
     else
     	std::cout<<"---Authorized fail!"<<std::endl;

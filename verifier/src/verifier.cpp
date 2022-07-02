@@ -489,16 +489,19 @@ int run(CTcpServer TcpServer, int cfd){
     std::cout<<"Step3: Verification"<<std::endl;
     std::cout<<"---Verifying"<<std::endl;;
 
-    std::string returncode ="success";
+    char* returncode ="success";
     for(int i =0; i < fileNUM;i++){
       if((bufArray[i] - addList[i] + mulList[i] -1)/ mulList[i] != 0){
         printf("--Attributes verify fail\n");
-        returncode = "fail";
+        returncode = "failing";
         break;
       }
     }
-    send(sclient, returncode.c_str(), returncode.length(), 0);
-    std::cout<<"---User is authorized!"<<std::endl;;
+    send(sclient, returncode, 7, 0);
+    if (!strcmp(recData,"success")) 
+    	std::cout<<"---User is authorized!"<<std::endl;
+    else
+    	std::cout<<"---Authorized fail!"<<std::endl;
     close(sclient);
     return 1;  
  }  

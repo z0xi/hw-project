@@ -31,6 +31,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TFHE_PREFIX/lib
 
 openssl：
 kali应该自带？如果发现openssl的问题安装下openssl环境
+使用ssh -V查看openssl版本
 
 nlohmann json：
 git clone https://github.com/nlohmann/json.git

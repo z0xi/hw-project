@@ -2,6 +2,7 @@
 
 依赖安装
 sudo apt-get install -y libgmp-dev libssl-dev libboost-all-dev 
+
 sudo apt-get install -y build-essential cmake cmake-curses-gui
 
 ABY：

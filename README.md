@@ -1,8 +1,8 @@
 # hw-project
 
 依赖安装
-sudo apt-get instal llibgmp-dev libssl-dev libboost-all-dev 
-sudo apt-get install build-essential cmake cmake-curses-gui
+sudo apt-get install -y libgmp-dev libssl-dev libboost-all-dev 
+sudo apt-get install -y build-essential cmake cmake-curses-gui
 
 ABY：
 主目录下shell运行
